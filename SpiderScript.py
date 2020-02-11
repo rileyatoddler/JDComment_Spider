@@ -5,15 +5,16 @@ import numpy as np
 import requests
 import json
 import csv
+import io
 
 def commentSave(list_comment):
-    file = open('data/JDComment_data.csv','w',newline = '')
+    file = io.open('JD.csv','w',encoding="utf-8", newline = '')
     writer = csv.writer(file)
-    writer.writerow(['用户ID','评论内容','会员级别','点赞数','回复数','得分','购买时间','手机型号'])
+    writer.writerow(['ID','Nickname','Bought Time','Comment Time','Like','Reply','Phone Type','Rating','Content'])
     for i in range(len(list_comment)):
         writer.writerow(list_comment[i])
     file.close()
-    print('存入成功')
+    print('Saved')
 
 def getCommentData(maxPage):
     sig_comment = []
@@ -21,7 +22,7 @@ def getCommentData(maxPage):
     cur_page = 0
     while cur_page < maxPage:
         cur_page += 1
-        url = 'https://sclub.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv%s&score=%s&sortType=5&page=%s&pageSize=10&isShadowSku=0&fold=1'%(proc,i,cur_page)
+        url = 'https://club.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv%s&score=%s&sortType=5&page=%s&pageSize=10&isShadowSku=0&fold=1'%(proc,i,cur_page)
         try:
             response = requests.get(url=url, headers=headers)
             time.sleep(np.random.rand()*2)
@@ -31,30 +32,32 @@ def getCommentData(maxPage):
             jsonData = jsonData[startLoc:-2]
             jsonData = json.loads(jsonData)
             pageLen = len(jsonData['comments'])
-            print("当前第%s页"%cur_page)
+            print(url)
             for j in range(0,pageLen):
-                userId = jsonData['comments'][j]['id']#用户ID
-                content = jsonData['comments'][j]['content']#评论内容
-                levelName = jsonData['comments'][j]['userLevelName']#会员级别
-                voteCount = jsonData['comments'][j]['usefulVoteCount']#点赞数
-                replyCount = jsonData['comments'][j]['replyCount']#回复数目
-                starStep = jsonData['comments'][j]['score']#得分
-                creationTime = jsonData['comments'][j]['creationTime']#购买时间
-                referenceName = jsonData['comments'][j]['referenceName']#手机型号
-                sig_comment.append(userId)#每一行数据
-                sig_comment.append(content)
-                sig_comment.append(levelName)
-                sig_comment.append(voteCount)
-                sig_comment.append(replyCount)
-                sig_comment.append(starStep)
+                userId = jsonData['comments'][j]['id']#ID
+                nickName = jsonData['comments'][j]['nickname']#nickName
+                boughtTime = jsonData['comments'][j]['referenceTime']#Bought Time
+                creationTime = jsonData['comments'][j]['creationTime']#Comment Time
+                voteCount = jsonData['comments'][j]['usefulVoteCount']#Like
+                replyCount = jsonData['comments'][j]['replyCount']#Reply
+                referenceName = jsonData['comments'][j]['referenceName']#Phone Type
+                starStep = jsonData['comments'][j]['score']#Rating
+                content = jsonData['comments'][j]['content']#Content
+                sig_comment.append(userId) #follow the order of column labels
+                sig_comment.append(nickname)
+                sig_comment.append(referenceTime)
                 sig_comment.append(creationTime)
+                sig_comment.append(usefulVoteCount)
+                sig_comment.append(replyCount)
                 sig_comment.append(referenceName)
+                sig_comment.append(score)
+                sig_comment.append(content)
                 list_comment.append(sig_comment)
                 sig_comment = []
         except:
             time.sleep(5)
             cur_page -= 1
-            print('网络故障或者是网页出现了问题，五秒后重新连接')
+            print('Wrong URL/Website not loading/Errors in #try, reconnecting in 5 sec')
     return list_comment
 
 if __name__ == "__main__":
@@ -66,17 +69,17 @@ if __name__ == "__main__":
     "User-Agent":ua.random,
     'Referer':"https://item.jd.com/100000177760.html#comment"
     }
-    #手机四种颜色对应的产品id参数
+    #product details: color/set/storage
     productid = ['35216&productId=5089271','136061&productId=5089275','22778&productId=5475612','7021&productId=6784504']
     list_comment = [[]]
     sig_comment = []
-    for proc in productid:#遍历产品颜色
+    for proc in productid:#all products in terms of color/set/storage
         i = -1
-        while i < 7:#遍历排序方式
+        while i < 7:#all scores
             i += 1
             if(i == 6):
                 continue
-             #先访问第0页获取最大页数，再进行循环遍历
+             #from page 0 to max page
             url = 'https://sclub.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv%s&score=%s&sortType=5&page=%s&pageSize=10&isShadowSku=0&fold=1'%(proc,i,0)
             print(url)
             try:
@@ -86,11 +89,11 @@ if __name__ == "__main__":
                 jsonData = jsonData[startLoc:-2]
                 jsonData = json.loads(jsonData)
                 print("最大页数%s"%jsonData['maxPage'])
-                getCommentData(jsonData['maxPage'])#遍历每一页
+                getCommentData(jsonData['maxPage'])
             except:
                 i -= 1
                 print("wating---")
                 time.sleep(5)
                 #commentSave(list_comment)
-    print("爬取结束，开始存储-------")
+    print("Done Scraping")
     commentSave(list_comment)

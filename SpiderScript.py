@@ -73,6 +73,7 @@ def getCommentData(maxPage):
             print('Wrong URL/Website not loading/Errors in #try, reconnecting in 5 sec')
     return list_comment
 
+#get folded comments
 def getFoldCommentData(maxPage):
     sig_comment = []
     global list_comment

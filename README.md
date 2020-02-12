@@ -13,7 +13,7 @@
 * Sales Set
 * Rating (Good = 4-5, Middle = 2-3, Bad = 1)
 * Content
-* Sourced url
+* Source url
 
 ## Logic
 

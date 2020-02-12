@@ -28,7 +28,7 @@ def getCommentData(maxPage):
     while cur_page < maxPage:
         cur_page += 1
         #in default setting JD displays comments for all product color/types/packages under the same product ID(need to be checked might be case by case)
-        #under score = 0, all coments with rating from 1 - 7 are displayed
+        #under score = 0, all coments with rating from 1 - 5 are displayed
         #link for displayed comments
         url = 'https://club.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv1&productId=%s&score=0&sortType=6&page=%s&pageSize=10&isShadowSku=0&fold=1'%(proc, cur_page)
         try:
@@ -80,8 +80,8 @@ def getFoldCommentData(maxPage):
     while cur_page < maxPage:
         cur_page += 1
         #in default setting JD displays comments for all product color/types/packages under the same product ID(need to be checked might be case by case)
-        #under score = 0, all coments with rating from 1 - 7 are displayed
-        #link for displayed comments
+        #under score = 0, all coments with rating from 1 - 5 are displayed
+        #link for folded comments
         url = 'https://club.jd.com/comment/getProductPageFoldComments.action?callback=jQuery2&productId=100010501298&score=0&sortType=6&page=%s&pageSize=5&_=1581492569799'%(cur_page)
         try:
             response = requests.get(url=url, headers=headers)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     productid = ['100010131982','100005850089','100005850091','100010501298','100010501300']
     list_comment = [[]]
     sig_comment = []
-    for proc in productid:#遍历产品颜色
+    for proc in productid:
          #from page 0 to max page
         url1 = 'https://club.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv1&productId=%s&score=0&sortType=6&page=%s&pageSize=10&isShadowSku=0&fold=1'%(proc,0)
         print(url1)
